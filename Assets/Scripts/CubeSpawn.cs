@@ -9,6 +9,7 @@ public class CubeSpawn : MonoBehaviour
     private int _minCount = 2;
     private int _maxCount = 6;
     private int _divisorForChance = 2;
+    private int _divisorForScale = 2;
     private int _spawnChance = 100;
 
     public void ReduceChance(int spawnChance)
@@ -23,11 +24,11 @@ public class CubeSpawn : MonoBehaviour
         if (_spawnChance >= random)
         {
             random = Random.Range(_minCount, _maxCount + 1);
-
+            
             for (int i = 0; i < random; i++)
             {
                 var cube = Instantiate(_cubePrefab, transform.position, transform.rotation);
-                cube.transform.localScale = transform.localScale / 2;
+                cube.transform.localScale = transform.localScale / _divisorForScale;
                 cube.GetComponent<MeshRenderer>().material = _materials[Random.Range(0, _materials.Length)];
                 cube.GetComponent<CubeSpawn>().ReduceChance(_spawnChance);
             }
