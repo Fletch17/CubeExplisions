@@ -1,42 +1,48 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CubeSpawn : MonoBehaviour
 {
-    [SerializeField] private GameObject _cubePrefab;
-    [SerializeField] private Material[] _materials;
+    [SerializeField] private Cube _prefab;
+    [SerializeField] private List<Material> _materials;
     [SerializeField] private Exploder _exploder;
 
     private int _minCount = 2;
     private int _maxCount = 6;
     private int _divisorForChance = 2;
     private int _divisorForScale = 2;
-    private int _spawnChance = 100;
-
-    public void ReduceChance(int spawnChance)
-    {
-        _spawnChance = spawnChance / _divisorForChance;
-    }
 
     public void Spawn()
     {
-        int random = Random.Range(0, 101);
+        int minPercent = 0;
+        int maxPercent = 100;
+        int random = Random.Range(minPercent, maxPercent);
+        List<Rigidbody> cubes = new List<Rigidbody>();
 
-        if (_spawnChance >= random)
+        if (_prefab.SpawnChance >= random)
         {
             random = Random.Range(_minCount, _maxCount + 1);
-            
+
             for (int i = 0; i < random; i++)
             {
-                var cube = Instantiate(_cubePrefab, transform.position, transform.rotation);
-                cube.transform.localScale = transform.localScale / _divisorForScale;
-                cube.GetComponent<MeshRenderer>().material = _materials[Random.Range(0, _materials.Length)];
-                cube.GetComponent<CubeSpawn>().ReduceChance(_spawnChance);
+                Vector3 distanceFromCenter = transform.localScale / 2f;
+                Vector3 deltaPosition = RandomUtils.GetRandomVector3(-distanceFromCenter, distanceFromCenter);
+                Vector3 position = transform.position + deltaPosition;
+                Vector3 newScale = transform.localScale / _divisorForScale;
+                int newChance = _prefab.SpawnChance / _divisorForChance;
+
+                var cube = Instantiate(_prefab, position, Quaternion.identity);
+                cube.Init(newScale, newChance);
+
+                if (cube.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+                {
+                    cubes.Add(rigidbody);
+                }
             }
+
+            _exploder.Explode(cubes);
         }
 
-        _exploder.Explode();
         Destroy(gameObject);
     }
-
-
 }

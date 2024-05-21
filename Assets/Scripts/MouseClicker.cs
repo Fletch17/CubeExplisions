@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(CubeSpawn))]
 public class MouseClicker : MonoBehaviour
 {
     private CubeSpawn _cubeSpawn;
