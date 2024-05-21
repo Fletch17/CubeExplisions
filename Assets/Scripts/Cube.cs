@@ -2,6 +2,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Renderer))]
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Exploder))]
 public class Cube : MonoBehaviour
 {
     private int _spawnChance = 100;
@@ -12,7 +13,7 @@ public class Cube : MonoBehaviour
     {
         transform.localScale = scale;
         _spawnChance = spawnChance;
-        var renderer = gameObject.GetComponent<Renderer>();
+        var renderer = GetComponent<Renderer>();
         renderer.material.color = Random.ColorHSV();
     }
 }

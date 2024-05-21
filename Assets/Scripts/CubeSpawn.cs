@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Cube))]
 public class CubeSpawn : MonoBehaviour
 {
     [SerializeField] private Cube _prefab;
@@ -16,6 +17,7 @@ public class CubeSpawn : MonoBehaviour
     {
         int minPercent = 0;
         int maxPercent = 100;
+        float halvedAxisLength = 2f;
         int random = Random.Range(minPercent, maxPercent);
         List<Rigidbody> cubes = new List<Rigidbody>();
 
@@ -25,7 +27,7 @@ public class CubeSpawn : MonoBehaviour
 
             for (int i = 0; i < random; i++)
             {
-                Vector3 distanceFromCenter = transform.localScale / 2f;
+                Vector3 distanceFromCenter = transform.localScale / halvedAxisLength;
                 Vector3 deltaPosition = RandomUtils.GetRandomVector3(-distanceFromCenter, distanceFromCenter);
                 Vector3 position = transform.position + deltaPosition;
                 Vector3 newScale = transform.localScale / _divisorForScale;
@@ -34,13 +36,26 @@ public class CubeSpawn : MonoBehaviour
                 var cube = Instantiate(_prefab, position, Quaternion.identity);
                 cube.Init(newScale, newChance);
 
-                if (cube.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+                if (cube.TryGetComponent(out Rigidbody rigidbody))
                 {
                     cubes.Add(rigidbody);
+                }
+
+                if (cube.TryGetComponent(out Exploder exploder))
+                {
+                    float multiple = 2f;
+                    float newExplosionForce = exploder.ExplosionForce * multiple;
+                    float newExplosionRadius = exploder.ExplosionRadius * multiple;
+
+                    exploder.ChangeExplodeParameters(newExplosionRadius, newExplosionForce);
                 }
             }
 
             _exploder.Explode(cubes);
+        }
+        else
+        {
+            _exploder.Explode();
         }
 
         Destroy(gameObject);
